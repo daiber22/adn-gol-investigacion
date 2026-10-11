@@ -13,12 +13,34 @@ def teams(match):
     return [match["home_team"]["home_team_id"], match["away_team"]["away_team_id"]]
 
 def mechanism(seq):
-    """Etiquetas conservadoras: no llamar contraataque a una jugada solo por su velocidad."""
+    """Heurística espacial auditable, no una etiqueta táctica validada.
+
+    En StatsBomb la etiqueta 'From Counter' no es un indicador exhaustivo
+    de contraataques. Se usan desplazamiento y duración observables.
+    """
     shots = [e for e in seq if e.get("type", {}).get("name") == "Shot"]
     if any(any(t.get("name") == "From Counter" for t in (e.get("tags") or [])) for e in shots):
         return "contraataque_etiquetado"
-    if any(e.get("type", {}).get("name") == "Carry" for e in seq) and len(seq) <= 8:
-        return "transicion_candidata_no_validada"
+    ordered = sorted(seq, key=lambda e: e.get("index", 0))
+    first, last = ordered[0], ordered[-1]
+    def seconds(e):
+        clock = e.get("timestamp") or ""
+        try:
+            h, m, s = clock.split(":")
+            return 3600*int(h) + 60*int(m) + float(s)
+        except (ValueError, AttributeError):
+            return None
+    t0, t1 = seconds(first), seconds(last)
+    duration = t1 - t0 if t0 is not None and t1 is not None else None
+    start = first.get("location") or []
+    end = last.get("location") or []
+    distance = (end[0] - start[0]) if len(start) >= 2 and len(end) >= 2 else None
+    if duration is not None and 0 <= duration <= 12 and distance is not None and distance >= 35:
+        return "ataque_directo_rapido_candidato"
+    if duration is not None and 0 <= duration <= 20 and distance is not None and distance >= 20:
+        return "transicion_indirecta_candidata"
+    if duration is not None and duration > 20:
+        return "ataque_posicional_candidato"
     return "sin_clasificar"
 
 def summarize_team(events, team_id):
