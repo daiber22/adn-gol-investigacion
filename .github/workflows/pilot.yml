@@ -1,4 +1,4 @@
-name: Pilot ADN del Gol
+name: ADN del Gol - LaLiga masculina absoluta
 on:
   push:
     branches: [main]
@@ -7,15 +7,15 @@ on:
       competition:
         description: 'StatsBomb competition ID'
         required: true
-        default: '37'
+        default: '11'
       season:
         description: 'StatsBomb season ID'
         required: true
-        default: '90'
+        default: '1'
       limit:
         description: 'Partidos a procesar (lote pequeño)'
         required: true
-        default: '131'
+        default: '300'
 permissions:
   contents: read
 jobs:
@@ -28,11 +28,11 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m unittest discover -s tests -v
-      - run: python -m src.pipeline --competition '${{ inputs.competition || '37' }}' --season '${{ inputs.season || '90' }}' --limit '${{ inputs.limit || '131' }}'
+      - run: python -m src.pipeline --competition '${{ inputs.competition || '11' }}' --season '${{ inputs.season || '1' }}' --limit '${{ inputs.limit || '300' }}'
       - name: Build chronological five-match pre-profiles
-        run: python -m src.pre_profiles --competition '${{ inputs.competition || '37' }}' --season '${{ inputs.season || '90' }}' --limit 99 --prior 5
+        run: python -m src.pre_profiles --competition '${{ inputs.competition || '11' }}' --season '${{ inputs.season || '1' }}' --limit 300 --prior 5
       - name: Compare traditional baseline against counterattack clash
-        run: python -m src.evaluate --competition '${{ inputs.competition || '37' }}' --season '${{ inputs.season || '90' }}' --limit 99
+        run: python -m src.evaluate --competition '${{ inputs.competition || '11' }}' --season '${{ inputs.season || '1' }}' --limit 300
       - uses: actions/upload-artifact@v4
         if: always()
         with:
