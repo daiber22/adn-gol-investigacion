@@ -1,0 +1,45 @@
+name: ADN del Gol - Comparacion multiliga masculina
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/multiliga.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  evaluar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { liga: bundesliga-2023-24, competition: 9, season: 281, limit: 306 }
+          - { liga: bundesliga-2015-16, competition: 9, season: 27, limit: 306 }
+          - { liga: serie-a-2015-16, competition: 12, season: 27, limit: 380 }
+          - { liga: ligue1-2015-16, competition: 7, season: 27, limit: 380 }
+          - { liga: ligue1-2022-23, competition: 7, season: 235, limit: 380 }
+          - { liga: mls-2023, competition: 44, season: 107, limit: 380 }
+          - { liga: laliga-2020-21, competition: 11, season: 90, limit: 380 }
+          - { liga: laliga-2019-20, competition: 11, season: 42, limit: 380 }
+          - { liga: premier-2003-04, competition: 2, season: 44, limit: 380 }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validar codigo
+        run: python -m unittest discover -s tests -v
+      - name: Procesar eventos
+        run: python -m src.pipeline --competition ${{ matrix.competition }} --season ${{ matrix.season }} --limit ${{ matrix.limit }}
+      - name: Construir perfiles cronologicos
+        run: python -m src.pre_profiles --competition ${{ matrix.competition }} --season ${{ matrix.season }} --limit ${{ matrix.limit }} --prior 5
+      - name: Comparar modelos y empates
+        run: python -m src.evaluate --competition ${{ matrix.competition }} --season ${{ matrix.season }} --limit ${{ matrix.limit }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: adn-multiliga-${{ matrix.liga }}
+          path: data/processed/
+          retention-days: 30
