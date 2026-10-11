@@ -3,8 +3,6 @@ import argparse
 import csv
 import json
 from collections import defaultdict
-from datetime import datetime
-from pathlib import Path
 
 from src.pipeline import BASE, OUT, RAW, fetch_json
 
@@ -41,7 +39,7 @@ def summarize_team(events, team_id):
         totals[f"{side}_possessions"] += 1
         totals[f"{side}_possessions_{label}"] += 1
         for shot in shots:
-            # El equipo que remata puede diferir del dueño de la posesión; contar por team_id.
+            # Un remate puede pertenecer a un equipo distinto del dueño de la posesión.
             shot_side = "for" if (shot.get("team") or {}).get("id") == team_id else "against"
             shot_label = label if shot_side == side else "sin_clasificar"
             totals[f"{shot_side}_shots_{shot_label}"] += 1
