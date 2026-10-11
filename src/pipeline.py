@@ -13,7 +13,7 @@ RAW = ROOT / "data" / "raw"
 OUT = ROOT / "data" / "processed"
 BASE = "https://raw.githubusercontent.com/statsbomb/open-data/master/data"
 
-ALLOWED_MENS_SEASONS = {(11, 1), (2, 27)}
+ALLOWED_MENS_SEASONS = {(11, 1), (2, 27), (9, 281), (9, 27), (12, 27), (7, 27), (7, 235), (44, 107), (11, 90), (11, 42), (2, 44)}
 def require_senior_mens(competition, season):
     if (competition, season) not in ALLOWED_MENS_SEASONS:
         raise ValueError("Solo temporadas aprobadas de futbol masculino profesional absoluto")
