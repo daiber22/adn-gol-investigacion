@@ -61,7 +61,9 @@ def probabilities(h, a, mechanism_adjustment=0):
     gf_diff = (h[0]-a[1]) - (a[0]-h[1])
     form_diff = (h[2]-h[4]) - (a[2]-a[4])
     advantage = 0.30 + 0.38*gf_diff + 0.45*form_diff + mechanism_adjustment
-    return softmax([advantage, 0.0, -advantage])
+    draw_rate = (h[3] + a[3]) / 2
+    draw_score = -0.10 + 1.40 * draw_rate - 0.30 * abs(advantage)
+    return softmax([advantage, draw_score, -advantage])
 
 def brier(p, actual):
     return sum((v - int(i == actual))**2 for i, v in enumerate(p))
@@ -108,12 +110,17 @@ def main():
         with (OUT/"comparison.csv").open("w",newline="",encoding="utf-8") as f:
             w=csv.DictWriter(f,fieldnames=list(rows[0]));w.writeheader();w.writerows(rows)
     n=len(rows)
-    summary={"evaluated":n,"requested":args.limit,"baseline_brier":round(sum(r["baseline_brier"] for r in rows)/n,6) if n else None,
+    classes = "HDA"
+    actual_counts = {k:sum(r["actual"]==k for r in rows) for k in classes}
+    baseline_picks = {k:sum(r["baseline_pick"]==k for r in rows) for k in classes}
+    augmented_picks = {k:sum(r["augmented_pick"]==k for r in rows) for k in classes}
+    augmented_hits = {k:sum(r["augmented_pick"]==k and r["actual"]==k for r in rows) for k in classes}
+    summary={"actual_counts":actual_counts,"baseline_picks":baseline_picks,"augmented_picks":augmented_picks,"augmented_hits":augmented_hits,"evaluated":n,"requested":args.limit,"baseline_brier":round(sum(r["baseline_brier"] for r in rows)/n,6) if n else None,
              "augmented_brier":round(sum(r["augmented_brier"] for r in rows)/n,6) if n else None,
              "baseline_correct":sum(r["baseline_pick"]==r["actual"] for r in rows),
              "augmented_correct":sum(r["augmented_pick"]==r["actual"] for r in rows),
              "nonzero_clashes":sum(r["counter_clash"]!=0 for r in rows),
-             "caution":"Exploratorio: etiquetas espaciales candidatas y pesos no calibrados; no prueba causalidad ni superioridad generalizable."}
+             "caution":"Exploratorio: etiquetas espaciales y empate heurístico sin calibración; requiere prueba independiente y no demuestra superioridad generalizable."}
     (OUT/"comparison_summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding="utf-8")
     print("COMPARISON_SUMMARY "+json.dumps(summary,ensure_ascii=False))
 if __name__=="__main__":
