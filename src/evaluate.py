@@ -10,7 +10,7 @@ import json
 import math
 from collections import defaultdict
 
-from src.pipeline import BASE, OUT, RAW, fetch_json
+from src.pipeline import BASE, OUT, RAW, fetch_json, require_senior_mens
 from src.pre_profiles import build, kickoff, teams
 
 def result(match, team_id):
@@ -103,6 +103,7 @@ def main():
     parser.add_argument("--season",type=int,default=90)
     parser.add_argument("--limit",type=int,default=10)
     args = parser.parse_args()
+    require_senior_mens(args.competition, args.season)
     matches = fetch_json(f"{BASE}/matches/{args.competition}/{args.season}.json", RAW / f"matches_{args.competition}_{args.season}.json")
     rows = evaluate(matches,args.limit)
     OUT.mkdir(parents=True,exist_ok=True)
