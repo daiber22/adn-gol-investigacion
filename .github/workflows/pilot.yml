@@ -1,0 +1,35 @@
+name: Pilot ADN del Gol
+on:
+  workflow_dispatch:
+    inputs:
+      competition:
+        description: 'StatsBomb competition ID'
+        required: true
+        default: '37'
+      season:
+        description: 'StatsBomb season ID'
+        required: true
+        default: '90'
+      limit:
+        description: 'Partidos a procesar (lote pequeño)'
+        required: true
+        default: '10'
+permissions:
+  contents: read
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s tests -v
+      - run: python -m src.pipeline --competition '${{ inputs.competition }}' --season '${{ inputs.season }}' --limit '${{ inputs.limit }}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: adn-gol-pilot
+          path: data/processed/
+          retention-days: 30
