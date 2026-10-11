@@ -26,6 +26,8 @@ jobs:
         run: python -m src.evaluate --competition 2 --season 27 --limit 380
       - name: Diagnosticar aciertos, empates y choque ofensivo-defensivo
         run: python -m src.diagnose
+      - name: Auditar partidos cuyo pronostico cambio
+        run: python -m src.audit_changes
       - uses: actions/upload-artifact@v4
         if: always()
         with:
