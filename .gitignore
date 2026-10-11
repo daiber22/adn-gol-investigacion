@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.venv/
+data/raw/*.json
+data/processed/*.csv
+data/processed/*.json
