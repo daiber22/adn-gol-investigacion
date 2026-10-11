@@ -13,6 +13,11 @@ RAW = ROOT / "data" / "raw"
 OUT = ROOT / "data" / "processed"
 BASE = "https://raw.githubusercontent.com/statsbomb/open-data/master/data"
 
+ALLOWED_MENS_SEASONS = {(11, 1), (2, 27)}
+def require_senior_mens(competition, season):
+    if (competition, season) not in ALLOWED_MENS_SEASONS:
+        raise ValueError("Solo temporadas aprobadas de futbol masculino profesional absoluto")
+
 def fetch_json(url, destination, refresh=False, retries=3):
     destination.parent.mkdir(parents=True, exist_ok=True)
     if destination.exists() and not refresh:
@@ -76,6 +81,7 @@ def main():
     parser.add_argument("--limit", type=int, default=10)
     parser.add_argument("--refresh", action="store_true")
     args = parser.parse_args()
+    require_senior_mens(args.competition, args.season)
     matches = fetch_json(f"{BASE}/matches/{args.competition}/{args.season}.json",
                          RAW / f"matches_{args.competition}_{args.season}.json", args.refresh)
     matches = sorted(matches, key=lambda m: (m.get("match_date", ""), m.get("kick_off") or "", m["match_id"]))[:args.limit]
