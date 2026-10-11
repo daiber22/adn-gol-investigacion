@@ -38,6 +38,8 @@ jobs:
         run: python -m src.pre_profiles --competition ${{ matrix.competition }} --season ${{ matrix.season }} --limit ${{ matrix.limit }} --prior 5
       - name: Comparar modelos y empates
         run: python -m src.evaluate --competition ${{ matrix.competition }} --season ${{ matrix.season }} --limit ${{ matrix.limit }}
+      - name: Diagnosticar aciertos, empates y choque ofensivo-defensivo
+        run: python -m src.diagnose
       - uses: actions/upload-artifact@v4
         if: always()
         with:
