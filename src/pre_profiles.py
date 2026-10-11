@@ -53,7 +53,7 @@ def summarize_team(events, team_id):
 def build(matches, limit=10, prior=5):
     ordered = sorted(matches, key=lambda m: (kickoff(m), m["match_id"]))
     output = []
-    for target in ordered[:limit]:
+    for target in ordered[-limit:]:
         target_ids = teams(target)
         earlier = [m for m in ordered if kickoff(m) < kickoff(target)]
         for side, team_id in zip(("home", "away"), target_ids):
