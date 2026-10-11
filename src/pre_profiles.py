@@ -4,7 +4,7 @@ import csv
 import json
 from collections import defaultdict
 
-from src.pipeline import BASE, OUT, RAW, fetch_json
+from src.pipeline import BASE, OUT, RAW, fetch_json, require_senior_mens
 
 def kickoff(match):
     return (match.get("match_date") or "") + "T" + (match.get("kick_off") or "00:00:00")
@@ -102,6 +102,7 @@ def main():
     parser.add_argument("--limit", type=int, default=10)
     parser.add_argument("--prior", type=int, default=5)
     args = parser.parse_args()
+    require_senior_mens(args.competition, args.season)
     matches = fetch_json(f"{BASE}/matches/{args.competition}/{args.season}.json", RAW / f"matches_{args.competition}_{args.season}.json")
     rows = build(matches, args.limit, args.prior)
     OUT.mkdir(parents=True, exist_ok=True)
