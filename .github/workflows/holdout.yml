@@ -1,4 +1,4 @@
-name: ADN del Gol - Validacion independiente 2023-24
+name: ADN del Gol - Premier League masculina absoluta
 on:
   push:
     branches: [main]
@@ -19,14 +19,14 @@ jobs:
           python-version: '3.11'
       - run: python -m unittest discover -s tests -v
       - name: Procesar temporada independiente 2023-24
-        run: python -m src.pipeline --competition 37 --season 281 --limit 132
+        run: python -m src.pipeline --competition 2 --season 27 --limit 380
       - name: Construir perfiles solo con cinco partidos anteriores
-        run: python -m src.pre_profiles --competition 37 --season 281 --limit 132 --prior 5
+        run: python -m src.pre_profiles --competition 2 --season 27 --limit 380 --prior 5
       - name: Evaluar ADN y empates en temporada no usada previamente
-        run: python -m src.evaluate --competition 37 --season 281 --limit 132
+        run: python -m src.evaluate --competition 2 --season 27 --limit 380
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: adn-gol-holdout-2023-24
+          name: adn-gol-premier-league-masculina
           path: data/processed/
           retention-days: 30
