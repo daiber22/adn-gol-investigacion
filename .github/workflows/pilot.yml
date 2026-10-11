@@ -28,7 +28,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m unittest discover -s tests -v
-      - run: python -m src.pipeline --competition '${{ inputs.competition }}' --season '${{ inputs.season }}' --limit '${{ inputs.limit }}'
+      - run: python -m src.pipeline --competition '${{ inputs.competition || '37' }}' --season '${{ inputs.season || '90' }}' --limit '${{ inputs.limit || '10' }}'
       - name: Build chronological five-match pre-profiles
         run: python -m src.pre_profiles --competition '${{ inputs.competition || '37' }}' --season '${{ inputs.season || '90' }}' --limit 10 --prior 5
       - uses: actions/upload-artifact@v4
