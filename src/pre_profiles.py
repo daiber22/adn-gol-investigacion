@@ -88,7 +88,7 @@ def main():
         writer = csv.DictWriter(f, fieldnames=columns)
         writer.writeheader()
         writer.writerows(rows)
-    summary = {"target_matches": args.limit, "profiles": len(rows), "complete_profiles": sum(r["complete_history"] for r in rows), "minimum_prior": args.prior, "note": "Etiquetas candidatas sin validación táctica; no se calculan probabilidades predictivas."}
+    summary = {"target_matches": len(rows) // 2, "profiles": len(rows), "complete_profiles": sum(r["complete_history"] for r in rows), "minimum_prior": args.prior, "note": "Etiquetas candidatas sin validación táctica; no se calculan probabilidades predictivas."}
     (OUT / "pre_profiles_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(summary, ensure_ascii=False))
 
