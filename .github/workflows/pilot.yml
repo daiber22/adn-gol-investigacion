@@ -31,6 +31,8 @@ jobs:
       - run: python -m src.pipeline --competition '${{ inputs.competition || '37' }}' --season '${{ inputs.season || '90' }}' --limit '${{ inputs.limit || '10' }}'
       - name: Build chronological five-match pre-profiles
         run: python -m src.pre_profiles --competition '${{ inputs.competition || '37' }}' --season '${{ inputs.season || '90' }}' --limit 10 --prior 5
+      - name: Compare traditional baseline against counterattack clash
+        run: python -m src.evaluate --competition '${{ inputs.competition || '37' }}' --season '${{ inputs.season || '90' }}' --limit 10
       - uses: actions/upload-artifact@v4
         if: always()
         with:
