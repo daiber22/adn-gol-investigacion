@@ -38,13 +38,19 @@ def rate(profile, prefix, suffix):
     return float(profile.get(prefix + "_" + suffix, 0) or 0) / max(1, profile["prior_matches"])
 
 def clash(home, away):
-    # Solo señales etiquetadas explícitamente como contraataque.
-    label = "contraataque_etiquetado"
-    home_attack = rate(home, "for", "xg_" + label)
-    away_weakness = rate(away, "against", "xg_" + label)
-    away_attack = rate(away, "for", "xg_" + label)
-    home_weakness = rate(home, "against", "xg_" + label)
-    return home_attack * away_weakness - away_attack * home_weakness
+    # Confrontar todos los mecanismos candidatos; no solo una etiqueta escasa.
+    # La diferencia entre mecanismos se mantiene visible en el informe.
+    labels = ("contraataque_etiquetado", "ataque_directo_rapido_candidato",
+              "transicion_indirecta_candidata", "ataque_posicional_candidato")
+    weights = (1.0, 1.0, 0.7, 0.5)
+    value = 0.0
+    for label, weight in zip(labels, weights):
+        home_attack = rate(home, "for", "xg_" + label)
+        away_weakness = rate(away, "against", "xg_" + label)
+        away_attack = rate(away, "for", "xg_" + label)
+        home_weakness = rate(home, "against", "xg_" + label)
+        value += weight * (home_attack * away_weakness - away_attack * home_weakness)
+    return value
 
 def softmax(scores):
     m = max(scores)
@@ -107,7 +113,7 @@ def main():
              "baseline_correct":sum(r["baseline_pick"]==r["actual"] for r in rows),
              "augmented_correct":sum(r["augmented_pick"]==r["actual"] for r in rows),
              "nonzero_clashes":sum(r["counter_clash"]!=0 for r in rows),
-             "caution":"Exploratorio, muestra pequeña, pesos no calibrados. No prueba causalidad ni superioridad generalizable."}
+             "caution":"Exploratorio: etiquetas espaciales candidatas y pesos no calibrados; no prueba causalidad ni superioridad generalizable."}
     (OUT/"comparison_summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding="utf-8")
     print("COMPARISON_SUMMARY "+json.dumps(summary,ensure_ascii=False))
 if __name__=="__main__":
