@@ -48,7 +48,7 @@ def summarize_match(match_id, events):
                 "team_id": (event.get("team") or {}).get("id"),
                 "possession": possession_id, "minute": event.get("minute"),
                 "xg": shot.get("statsbomb_xg"), "goal": int(outcome == "Goal"),
-                "from_counter": int(any((tag or {}).get("name") == "From Counter" for tag in event.get("tags", [])))),
+                "from_counter": int(any((tag or {}).get("name") == "From Counter" for tag in event.get("tags", []))),
             })
     rows = []
     for (mid, pid), seq in possessions.items():
